@@ -1,0 +1,142 @@
+1. Cấu trúc tổng quan
+
+project-name/
+├── client/                  # Thư mục Frontend (ReactJS)
+│   ├── public/              # Chứa các file tĩnh và `index.html`
+│   ├── src/                 # Code chính của Frontend
+│   └── package.json         # Quản lý dependencies và scripts Frontend
+├── server/                  # Thư mục Backend (Node.js/Express)
+│   ├── controllers/         # Xử lý logic của các route
+│   ├── models/              # Định nghĩa mô hình dữ liệu (ORM/ODM)
+│   ├── routes/              # Định nghĩa các API routes
+│   ├── middlewares/         # Xử lý trung gian (auth, validation, error)
+│   ├── utils/               # Các hàm tiện ích (utility)
+│   ├── config/              # Cấu hình ứng dụng
+│   └── package.json         # Quản lý dependencies và scripts Backend
+├── .gitignore               # File để bỏ qua các file/thư mục không commit
+├── README.md                # Hướng dẫn sử dụng dự án
+├── .env                     # Biến môi trường dùng chung
+
+2. Chi tiết cấu trúc thư mục Frontend
+
+
+client/
+├── public/                  # Tài nguyên tĩnh và template HTML
+│   ├── index.html           # Template HTML chính
+│   └── favicon.ico          # Icon của trang web
+├── src/                     # Code chính của ứng dụng ReactJS
+│   ├── assets/              # Tài nguyên: hình ảnh, icon, font, SCSS
+│   │   ├── images/          # Thư mục hình ảnh
+│   │   ├── styles/          # SCSS hoặc CSS dùng chung
+│   │   └── fonts/           # Font chữ
+│   ├── components/          # Các thành phần giao diện tái sử dụng
+│   │   ├── common/          # Các thành phần dùng chung (Button, Input, Modal)
+│   │   ├── layout/          # Các thành phần layout như Header, Footer
+│   │   └── widgets/         # Các thành phần đặc thù (SearchBar, CartWidget)
+│   ├── context/             # Quản lý state bằng Context API
+│   │   └── AuthContext.js   # Context quản lý trạng thái người dùng
+│   ├── hooks/               # Custom hooks
+│   │   └── useFetch.js      # Hook để gọi API
+│   ├── layouts/             # Định nghĩa cấu trúc layout chung
+│   │   ├── MainLayout.js    # Layout chính
+│   │   └── AuthLayout.js    # Layout cho trang đăng nhập/đăng ký
+│   ├── pages/               # Các trang chính của ứng dụng
+│   │   ├── HomePage.js      # Trang chủ
+│   │   ├── AboutPage.js     # Trang giới thiệu
+│   │   ├── LoginPage.js     # Trang đăng nhập
+│   │   └── NotFoundPage.js  # Trang 404
+│   ├── services/            # Quản lý gọi API
+│   │   └── api.js           # Cấu hình và hàm gọi API
+│   ├── utils/               # Các hàm tiện ích
+│   │   └── formatter.js     # Format số, tiền tệ
+│   ├── App.js               # Component chính của ứng dụng
+│   ├── index.js             # Điểm khởi đầu của ReactJS
+│   └── style.scss           # File SCSS dùng chung
+├── package.json             # Quản lý dependencies Frontend
+├── .env                     # Biến môi trường Frontend
+
+3. Chi tiết cấu trúc thư mục Backend
+server/
+├── controllers/             # Logic xử lý của các API
+│   ├── authController.js    # Xử lý logic liên quan đến đăng nhập
+│   └── itemController.js    # Xử lý logic liên quan đến items
+├── models/                  # Định nghĩa schema và mô hình dữ liệu
+│   ├── userModel.js         # Mô hình User
+│   └── itemModel.js         # Mô hình Item
+├── routes/                  # Định nghĩa các API routes
+│   ├── authRoutes.js        # Route liên quan đến xác thực
+│   └── itemRoutes.js        # Route liên quan đến items
+├── middlewares/             # Middleware xử lý request
+│   ├── authMiddleware.js    # Middleware xác thực JWT
+│   └── errorMiddleware.js   # Middleware xử lý lỗi
+├── utils/                   # Các hàm tiện ích
+│   ├── jwt.js               # Tạo và xác thực JWT
+│   └── email.js             # Gửi email
+├── config/                  # Cấu hình chung
+│   ├── db.js                # Kết nối cơ sở dữ liệu
+│   └── environment.js       # Đọc và xử lý biến môi trường
+├── app.js                   # Cấu hình chính của ứng dụng Express
+├── server.js                # Điểm khởi động của Backend
+├── package.json             # Quản lý dependencies Backend
+├── .env                     # Biến môi trường Backend
+
+
+1.Frontend - services/api.js
+
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL; // URL API từ biến môi trường
+
+export const fetchItems = async () => {
+  const response = await axios.get(`${API_URL}/items`);
+  return response.data;
+};
+
+2.Backend - routes/itemRoutes.js
+
+const express = require('express');
+const { getItems } = require('../controllers/itemController');
+
+const router = express.Router();
+
+// Route lấy danh sách items
+router.get('/', getItems);
+
+module.exports = router;
+
+
+3.Backend - controllers/itemController.js
+
+const Item = require('../models/itemModel');
+
+const getItems = async (req, res) => {
+  try {
+    const items = await Item.find();
+    res.status(200).json(items); // Trả về danh sách items
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getItems };
+
+4.Backend - models/itemModel.js
+
+const mongoose = require('mongoose');
+
+const itemSchema = mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+});
+
+module.exports = mongoose.model('Item', itemSchema);
+
+
+cd đường-dẫn-tới-thư-mục-dự-án
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <URL của repository>
+git branch -M main
+git push -u origin main
+
